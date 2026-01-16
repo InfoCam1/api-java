@@ -1,6 +1,5 @@
 package es.plaiaundi.infoCam.api_java.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,7 +25,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @JsonIgnore // Seguridad: nunca devolver password
+    //@JsonIgnore // Seguridad: nunca devolver password
     @Column(nullable = false)
     private String password;
 

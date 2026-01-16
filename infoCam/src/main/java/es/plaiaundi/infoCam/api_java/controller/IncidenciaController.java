@@ -34,12 +34,6 @@ public class IncidenciaController {
         return incidenciaService.guardar(i);
     }
 
-    @PostMapping("/{id}/favorita")
-    public void toggleFavorita(@PathVariable Long id, @RequestParam Long usuarioId) {
-        // Feature not supported by current data model
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Data model does not support favorite incidents");
-    }
-
     @PutMapping("/{id}")
     public Incidencia update(@PathVariable Long id, @RequestBody Incidencia info) {
         Incidencia ex = incidenciaService.findById(id);
