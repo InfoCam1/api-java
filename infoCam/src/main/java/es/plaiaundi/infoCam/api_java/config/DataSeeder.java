@@ -22,21 +22,34 @@ public class DataSeeder implements CommandLineRunner {
     private final CamaraRepository camaraRepository;
     private final IncidenciaRepository incidenciaRepository;
     private final RestTemplate restTemplate;
+    private final IncidenciaSyncService incidenciaSyncService;
 
     public DataSeeder(UsuarioRepository usuarioRepository,
                       CamaraRepository camaraRepository,
-                      IncidenciaRepository incidenciaRepository) {
+                      IncidenciaRepository incidenciaRepository, IncidenciaSyncService incidenciaSyncService) {
         this.usuarioRepository = usuarioRepository;
         this.camaraRepository = camaraRepository;
         this.incidenciaRepository = incidenciaRepository;
+        this.incidenciaSyncService = incidenciaSyncService;
         this.restTemplate = new RestTemplate();
     }
 
     @Override
     public void run(String... args) throws Exception {
         // 1. SEEDER DE USUARIOS
+        Usuario gobierno = new Usuario(); //creacion de un usuario especial que será el creador de las incidencias
+
         if (usuarioRepository.count() == 0) {
             System.out.println("Cargando datos iniciales de Usuarios...");
+
+            gobierno.setUsername("gov");
+            gobierno.setPassword("123");
+            gobierno.setIs_admin(true);
+            gobierno.setEmail("gab-lehendak@euskadi.eus");
+            gobierno.setNombre("Gobierno");
+            gobierno.setApellido("Vasco");
+            gobierno.setTelefono(666777888);
+            usuarioRepository.save(gobierno);
 
             Usuario admin = new Usuario();
             admin.setUsername("admin");
@@ -44,6 +57,7 @@ public class DataSeeder implements CommandLineRunner {
             admin.setIs_admin(true);
             admin.setEmail("admin@euskadi.eus");
             admin.setNombre("Administrador");
+            admin.setTelefono(696969696);
             usuarioRepository.save(admin);
 
             Usuario user = new Usuario();
@@ -53,10 +67,11 @@ public class DataSeeder implements CommandLineRunner {
             user.setEmail("erika@email.com");
             user.setNombre("Erika");
             user.setApellido("Martin");
+            user.setTelefono(123456789);
             usuarioRepository.save(user);
         }
 
-        // 2. SEEDER DE CÁMARAS (API EXTERNA TRAFIKOA)
+        // 2. SEEDER DE CÁMARAS )
         if (camaraRepository.count() == 0) {
             System.out.println("Iniciando carga directa de cámaras...");
             // Saltarse validación SSL de forma global para el arranque (Truco rápido)
@@ -99,24 +114,8 @@ public class DataSeeder implements CommandLineRunner {
 
         // 3. SEEDER DE INCIDENCIAS
         if (incidenciaRepository.count() == 0) {
-            System.out.println("Cargando datos iniciales de Incidencias...");
-            Incidencia i1 = new Incidencia();
-            i1.setNombre("Accidente AP-8");
-            i1.setTipoIncidencia("Accidente");
-            i1.setCausa("Colisión por alcance");
-            i1.setLatitud("43.2");
-            i1.setLongitud("-2.9");
-            i1.setFecha_inicio(new Date());
-            incidenciaRepository.save(i1);
-
-            Incidencia i2 = new Incidencia();
-            i2.setNombre("Obras N-1");
-            i2.setTipoIncidencia("Obras");
-            i2.setCausa("Mantenimiento");
-            i2.setLatitud("43.1");
-            i2.setLongitud("-2.5");
-            i2.setFecha_inicio(new Date());
-            incidenciaRepository.save(i2);
+            System.out.println("Ejecutando primera carga de incidencias reales...");
+            incidenciaSyncService.sincronizarIncidenciasDiarias();
         }
     }
 

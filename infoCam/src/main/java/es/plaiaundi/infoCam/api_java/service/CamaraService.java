@@ -39,4 +39,8 @@ public class CamaraService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<Camara> buscarActivas() {
+        return camaraRepository.findByActivaTrue();
+    }
 }

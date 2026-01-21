@@ -15,6 +15,10 @@ public class Incidencia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //id externa para guardar la id de opendata
+    @Column(unique = true)
+    private String externalId;
+
     private String nombre;
 
     @Column(name = "tipo_incidencia")

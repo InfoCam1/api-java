@@ -26,6 +26,16 @@ public class IncidenciaController {
         return incidenciaService.buscarCercanas(lat, lon, distancia);
     }
 
+    @GetMapping("/activas")
+    public List<Incidencia> getActivas(@RequestParam String fecha){
+        return incidenciaService.buscarActivas(fecha);
+    }
+
+    @GetMapping("/tipos")
+    public List<String> getTiposIncidencia() {
+        return incidenciaService.obtenerTipos();
+    }
+
     @PostMapping
     public Incidencia create(@RequestBody Incidencia i) {
         if (i.getFecha_inicio() == null) {

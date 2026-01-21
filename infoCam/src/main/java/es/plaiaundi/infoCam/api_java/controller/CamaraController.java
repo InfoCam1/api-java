@@ -24,6 +24,11 @@ public class CamaraController {
         return camaraService.buscarCercanas(lat, lon, distancia);
     }
 
+    @GetMapping("/activas")
+    public List<Camara> getActivas() {
+        return camaraService.buscarActivas();
+    }
+
     @GetMapping("/{id}")
     public Camara getOne(@PathVariable Integer id) {
         return camaraService.findById(id);
