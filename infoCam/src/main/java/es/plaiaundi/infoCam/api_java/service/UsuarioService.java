@@ -15,27 +15,34 @@ public class UsuarioService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private CamaraRepository camaraRepository;
 
+    //método jpa para listar todos los usuarios
     public List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();
     }
 
+    //método jpa que recibe un usuario y lo guarda en la BBDD
     public Usuario guardar(Usuario u) {
         return usuarioRepository.save(u);
     }
 
+    //método jpa para registrar un usuario
     public Usuario registrar(Usuario u) {
         return usuarioRepository.save(u);
     }
 
+    //método jpa que recibe usuario y contraseña y comprueba que exista
     public Usuario login(String username, String password) {
         return usuarioRepository.findByUsernameAndPassword(username, password);
     }
 
+    //método jpa que busca un usuario por su id
     public Usuario findById(Long id) {
         return usuarioRepository.findById(id).orElse(null);
     }
 
+    //método que recibe un id de usuario y cámara y los pone en favorito
     public void toggleFavoritoCamara(Long userId, Integer camaraId) {
+        //verificar que ambos objetos existan en la base de datos
         Optional<Usuario> uOpt = usuarioRepository.findById(userId);
         Optional<Camara> cOpt = camaraRepository.findById(camaraId);
 
@@ -43,6 +50,7 @@ public class UsuarioService {
             Usuario u = uOpt.get();
             Camara c = cOpt.get();
 
+            //si el usuario ya tiene esa cámara en favorito lo borra si no lo añade a favoritos
             if (u.getFavoritos().contains(c)) {
                 u.getFavoritos().remove(c);
             } else {

@@ -1,5 +1,6 @@
 package es.plaiaundi.infoCam.api_java.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,7 +37,8 @@ public class Usuario {
 
     // RELACIÓN 1:N (Usuario -> Incidencias)
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonManagedReference // Muestra las incidencias dentro del usuario
+    //no mostrar el usuario ya que entraría en un bucle dentro de incidencias
+    @JsonIgnoreProperties("usuario")
     private List<Incidencia> incidencias = new ArrayList<>();
 
     // RELACIÓN N:M (Usuario -> Cámaras Favoritas)

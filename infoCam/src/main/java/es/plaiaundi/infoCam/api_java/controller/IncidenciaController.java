@@ -16,26 +16,31 @@ public class IncidenciaController {
 
     @Autowired private IncidenciaService incidenciaService;
 
+    //Enpoint que lista todas las incidencias de la BBDD
     @GetMapping
     public List<Incidencia> getAll() {
         return incidenciaService.obtenerTodas();
     }
 
+    //Enpoint que recibe "latitud", "longitud" y distancia y devuelve las incidencias en ese rango de distancia
     @GetMapping("/cercanas")
     public List<Incidencia> getCercanas(@RequestParam double lat, @RequestParam double lon, @RequestParam double distancia) {
         return incidenciaService.buscarCercanas(lat, lon, distancia);
     }
 
+    //Enpoint que recibe una fecha y devuelve la lista de incidencias que esten activas o en un rango de 48H
     @GetMapping("/activas")
     public List<Incidencia> getActivas(@RequestParam String fecha){
         return incidenciaService.buscarActivas(fecha);
     }
 
+    //Enpoint que devuelve todos los tipos de incidencia que hay actuales
     @GetMapping("/tipos")
     public List<String> getTiposIncidencia() {
         return incidenciaService.obtenerTipos();
     }
 
+    //Enpoint que recibe un objeto incidencia y lo inserta en la BBDD
     @PostMapping
     public Incidencia create(@RequestBody Incidencia i) {
         if (i.getFecha_inicio() == null) {
@@ -44,6 +49,7 @@ public class IncidenciaController {
         return incidenciaService.guardar(i);
     }
 
+    //Enpoint con un id que recibe un objeto incidencia y lo actualiza en la BBDD
     @PutMapping("/{id}")
     public Incidencia update(@PathVariable Long id, @RequestBody Incidencia info) {
         Incidencia ex = incidenciaService.findById(id);
@@ -60,6 +66,7 @@ public class IncidenciaController {
         return null;
     }
 
+    //Enpoint con un id que elimina el registro de la BBDD
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         incidenciaService.delete(id);

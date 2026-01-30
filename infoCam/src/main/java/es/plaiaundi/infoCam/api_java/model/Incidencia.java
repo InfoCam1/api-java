@@ -1,6 +1,7 @@
 package es.plaiaundi.infoCam.api_java.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
@@ -33,6 +34,7 @@ public class Incidencia {
     // RELACIÓN N:1 (Muchos reportes -> Un usuario)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonBackReference // Corta el bucle: Al ver incidencia, no recargamos todo el usuario
+    //No mostrar incidencias ya que entraría en un bucle dentro de usuario
+    @JsonIgnoreProperties({"incidencias", "handler", "hibernateLazyInitializer", "favoritos"})
     private Usuario usuario;
 }

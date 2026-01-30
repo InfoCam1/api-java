@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface IncidenciaRepository extends JpaRepository<Incidencia, Long> {
     Optional<Incidencia> findByExternalId(String externalId);
+    //query especial para listar los tipos de incidencia que existen en la BBDD
     @Query("SELECT DISTINCT i.tipoIncidencia FROM Incidencia i WHERE i.tipoIncidencia IS NOT NULL")
     List<String> findDistinctTipoIncidencia();
 }

@@ -1,7 +1,6 @@
 package es.plaiaundi.infoCam.api_java.config;
 
 import es.plaiaundi.infoCam.api_java.model.Camara;
-import es.plaiaundi.infoCam.api_java.model.Incidencia;
 import es.plaiaundi.infoCam.api_java.model.Usuario;
 import es.plaiaundi.infoCam.api_java.repository.CamaraRepository;
 import es.plaiaundi.infoCam.api_java.repository.IncidenciaRepository;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +35,14 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 1. SEEDER DE USUARIOS
-        Usuario gobierno = new Usuario(); //creacion de un usuario especial que será el creador de las incidencias
+        // creacion de un usuario especial que será el creador de las incidencias
+        Usuario gobierno = new Usuario();
 
+        // verificar que no haya usuarios insertados ya
         if (usuarioRepository.count() == 0) {
             System.out.println("Cargando datos iniciales de Usuarios...");
 
+            // Usuario de gobierno que será creador de incidencias de OpenData
             gobierno.setUsername("gov");
             gobierno.setPassword("123");
             gobierno.setIs_admin(true);
@@ -51,6 +52,7 @@ public class DataSeeder implements CommandLineRunner {
             gobierno.setTelefono(666777888);
             usuarioRepository.save(gobierno);
 
+            // Usuario admin
             Usuario admin = new Usuario();
             admin.setUsername("admin");
             admin.setPassword("admin123");
@@ -60,6 +62,7 @@ public class DataSeeder implements CommandLineRunner {
             admin.setTelefono(696969696);
             usuarioRepository.save(admin);
 
+            // Usuario normal
             Usuario user = new Usuario();
             user.setUsername("erika");
             user.setPassword("123");
@@ -72,21 +75,23 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         // 2. SEEDER DE CÁMARAS )
+        // Verificación para ver que ya hay cámaras insertadas
         if (camaraRepository.count() == 0) {
             System.out.println("Iniciando carga directa de cámaras...");
-            // Saltarse validación SSL de forma global para el arranque (Truco rápido)
+            // Saltarse validación SSL de forma global para el arranque
             configurarSslInseguroGlobal();
 
             String urlBase = "https://api.euskadi.eus/traffic/v1.0/cameras?_page=";
 
             try {
+                // bucle iterativo para cada pagina de OpenData
                 for (int i = 1; i <= 25; i++) {
                     // Obtenemos el JSON completo como un Map genérico
                     Map<String, Object> respuesta = restTemplate.getForObject(urlBase + i, Map.class);
                     List<Map<String, Object>> listaCamaras = (List<Map<String, Object>>) respuesta.get("cameras");
 
                     for (Map<String, Object> cam : listaCamaras) {
-                        // Extracción directa de variables según tu formato
+                        // Extraccion directa de variables
                         String nombre = String.valueOf(cam.get("cameraName"));
                         String urlImg = String.valueOf(cam.get("urlImage"));
                         double lat = Double.parseDouble(String.valueOf(cam.get("latitude")));
@@ -102,7 +107,7 @@ public class DataSeeder implements CommandLineRunner {
                                 activa = verificarImagen(urlImg);
                             }
                         }
-
+                        //Guardar en la BBDD
                         camaraRepository.save(new Camara(nombre, lat, lon, urlImg, activa));
                     }
                     System.out.println("Página " + i + " procesada.");
@@ -113,13 +118,14 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         // 3. SEEDER DE INCIDENCIAS
+        // llamar al seeder que inserta/actualiza los datos de las incidencias diariamente
         if (incidenciaRepository.count() == 0) {
             System.out.println("Ejecutando primera carga de incidencias reales...");
             incidenciaSyncService.sincronizarIncidenciasDiarias();
         }
     }
 
-    // Método para saltar el error de certificado sin dependencias nuevas
+    // Metodo para saltar el error de certificado sin dependencias nuevas
     private void configurarSslInseguroGlobal() throws Exception {
         javax.net.ssl.TrustManager[] trustAllCerts = new javax.net.ssl.TrustManager[]{
                 new javax.net.ssl.X509TrustManager() {
@@ -133,6 +139,7 @@ public class DataSeeder implements CommandLineRunner {
         javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
     }
 
+    // Metodo que verifica que la imagen que devuelve OpenData es correcta
     private boolean verificarImagen(String url) {
         try {
             return restTemplate.execute(url, HttpMethod.HEAD, null, r -> r.getStatusCode().is2xxSuccessful());
