@@ -23,7 +23,6 @@ public class AuthController {
 
         // 2. Enviar email si el registro fue exitoso
         if (guardado != null && guardado.getEmail() != null) {
-            System.out.println("entra");
             emailService.enviarCorreoBienvenida(guardado.getEmail(), guardado.getNombre());
         }
 
